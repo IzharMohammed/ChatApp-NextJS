@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react-jsx", // For React 17 and later
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
