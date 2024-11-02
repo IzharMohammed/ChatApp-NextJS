@@ -1,4 +1,5 @@
-import { NextAuthOptions } from "next-auth";
+import { db } from "@/lib/db";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
 function getGoogleCredentials() {
@@ -17,7 +18,7 @@ function getGoogleCredentials() {
     return { clientId, clientSecret };
 }
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
 
     session: {
         strategy: 'jwt'
@@ -37,8 +38,40 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
 
         async jwt({ token, user }) {
-            
-        }
 
-    }
+            const dbUserResult = await db.get(`user:${token.id}`) as User;
+
+            if (!dbUserResult) {
+                if (user) {
+                    token.id = user!.id;
+                }
+                return token;
+            }
+
+            return {
+                id: dbUserResult.id,
+                name: dbUserResult.name,
+                email: dbUserResult.email,
+                picture: dbUserResult.image
+            }
+        },
+
+        async session({ session, token }) {
+
+            if (token && session.user) {
+                session.user.id = token.id;
+                session.user.name = token.name;
+                session.user.email = token.email;
+                session.user.image = token.picture
+
+            }
+            return session;
+        },
+
+        redirect() {
+            return '/'
+        }
+    },
 }
+
+export default NextAuth(authOptions);
