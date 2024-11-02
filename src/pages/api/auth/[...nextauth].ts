@@ -48,7 +48,7 @@ const authOptions: NextAuthOptions = {
             // If no user found in the database, assign user ID to token if user exists
             if (!dbUserResult) {
                 if (user) {
-                    token.id = user!.id; // Set token ID to user ID
+                    token.id = user.id; // Set token ID to user ID
                 }
                 return token; // Return the token
             }
